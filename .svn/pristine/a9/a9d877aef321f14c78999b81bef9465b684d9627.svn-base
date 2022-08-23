@@ -1,0 +1,21 @@
+# pack-refs with: peeled 
+96714d286e6910a1185aae27020dc62126a505de refs/remotes/origin/custom_container
+66b4225e473143af992365e24fba9ef217d47b4a refs/remotes/origin/develop
+66b4225e473143af992365e24fba9ef217d47b4a refs/remotes/origin/develop_update-jasmine
+fb920860c551fa7c90ed2b7067ff3fdc13c8b649 refs/remotes/origin/gh-pages
+d257039e38dd9a6513fd2d4bfef55b243e1d7cc5 refs/remotes/origin/master
+3e7fb81cf3560550d93bec9a416a03d06e4ba3a7 refs/tags/v1.2.10
+f73c77905a82d9c795e93c71c62f440dc4102667 refs/tags/v1.2.11
+51fc6a6ca7d1df91deb16f164e0a5ee4e99d0a53 refs/tags/v1.2.12
+d90cc5e92f8b8b5ed18cc38b1f614dc5d0d7368a refs/tags/v1.2.13
+d71867a09026032a1e0e88aeaec0ca66fab473f2 refs/tags/v1.2.14
+2c6bb918f32ae8b0af3af2305868b42f1d605693 refs/tags/v1.2.15
+d27a586af2440e97ad069a34eb5aa0c5e8d803cd refs/tags/v1.2.16
+d5a57cce9b5db6ecfeb5d1e1caeecda474984f63 refs/tags/v1.2.2
+56195317c8f534cba887b752c9e24237acf70914 refs/tags/v1.2.3
+0add15ec72a5298da5db3cd2f558179b904cba33 refs/tags/v1.2.4
+364fd6a1f05a3c48caef23c05c4592ea658dd37a refs/tags/v1.2.5
+9f62319033c9255fa052ba15b379b3cc548a221b refs/tags/v1.2.6
+997a4b92cc864bd339dd24def3036a34ce011400 refs/tags/v1.2.7
+d38ec91e6bd606651eb5096e29d29af4abd7c465 refs/tags/v1.2.8
+4924da0b519e8408fad10a746d2fe9ccfb859f80 refs/tags/v1.2.9

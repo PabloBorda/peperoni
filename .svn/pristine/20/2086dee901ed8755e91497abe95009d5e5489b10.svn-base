@@ -1,0 +1,74 @@
+#elastic search
+
+
+require 'rubygems'
+require 'rest_client'
+require 'tire'
+load 'helpers/string.rb'
+
+def get_closest_paragraph(ticket,findstr)
+  (ticket["RightNowTicket"].map { |t| 
+    best_match = t["Note"].max_by { |p|
+      p[:paragraph].count_similar_words(findstr)[:amount]      
+    }
+    best_match[:paragraph]
+  }).max_by {|best_paragraph_for_note| best_paragraph_for_note.count_similar_words(findstr)[:amount] }
+
+end
+
+
+ {:base_url => "http://10.64.255.76:9200/tickets-notes-converted-into-paragraphs/document/_search",
+  :username => "",
+  :password => "",
+  :addon_name => "elastic_search_ticket_feed",
+  :type => "DYNAMIC_FEED",
+  :matching_lambda => Proc.new { /([0-9]{19})/ },
+  :login => Proc.new { 
+    "http://10.64.255.76:9200/tickets-notes-converted-into-paragraphs/document/_search"
+  },
+  :retriever => Proc.new { |login_result,search_term|
+    Tire.configure do
+      url "http://10.64.255.76:9200"
+    end
+
+    s = Tire.search('tickets-notes-converted-into-paragraphs') { query { string ('document.RightNowTicket.Note.paragraph:' + search_term[:q]) } }
+    a = s.results
+    a
+  },
+  :processor => Proc.new { |notes,findstr|
+
+        suggestions = []
+        suggestions_for_elastic_search = []
+        suggestions_for_elastic_search = notes.map { |l| 
+                                                      #puts "THIS IS TICKET_________________________________" + l.to_json
+                                                      { :q => findstr, 
+                                                        :mr => l["RightNowTicket"][0]["Assigned"].to_s.split(" ")[0][0].downcase + l["RightNowTicket"][0]["Assigned"].to_s.split(" ")[1].downcase,
+                                                        :knows => get_closest_paragraph(l,findstr),  #l.text
+                                                        :for => findstr,
+                                                        :ticket_number => l["RightNowTicket"][0]["RefNum"].to_s,
+                                                        :note_number => "0",
+                                                        :selection_counter => 0
+                                         
+        } }
+
+       suggestions = suggestions + suggestions_for_elastic_search
+
+  },
+  :how_many_results => 10,
+  :helper_methods_exposed_to_url => [{:find_ticket_feed => Proc.new { 
+    tik = params[:ticket_number]
+    puts "TICKET TO FIND " + tik
+
+    Tire.configure do
+      url "http://10.64.255.76:9200"
+    end
+
+
+    s = Tire.search('tickets-notes-converted-into-paragraphs') { query { string ('document.RightNowTicket.RefNum:' + tik) } }
+    
+    s.results.first.to_json
+
+    }}]
+  
+        
+}

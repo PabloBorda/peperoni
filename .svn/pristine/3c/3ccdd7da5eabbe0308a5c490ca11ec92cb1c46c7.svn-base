@@ -1,0 +1,22 @@
+{
+  :addon_name => "ticket_number",
+  :type => "WEB",
+  :matching_lambda => Proc.new { /(([0-9]{6})-([0-9]{6}))/ },
+
+
+  :helper_methods_exposed_to_url => [{ :ticket_number => Proc.new {
+ 
+    redirect "https://mts/wnvp/?method=GetRightNowTicketDetails&Custom=" + params[:matched_value].to_s + "&ref_num=" + params[:matched_value].to_s + "&dojo.preventCache=1420544362909"
+
+  }}],
+  :color => "#BB3520",
+  :childs => [],
+  :parent => ""
+
+
+
+
+
+
+
+}

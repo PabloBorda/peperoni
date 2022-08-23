@@ -1,0 +1,77 @@
+<div>
+<h3>
+  <a href="#">
+    <table>
+      <tr>
+        <td>
+         <!-- <img onerror="imgError(this)" src="<%=data[0]%>"/>        -->
+        </td>
+        <td valign="middle">
+          <table>
+            <tr>
+              <td>
+                <label id="name" style="color:white!important;"><%= data[1] %></label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+               <label id="timestamp" style="color:white!important;"><%= data[3] %></label>
+              <td>
+            </tr>
+          </table>
+        </td>
+        <td>
+          <div align="right" width="100%">
+            <label id="status" style="color:white!important;"><%= data[4] %></label>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </a>
+</h3>
+<div>
+<table>
+  <tr>
+<!--    <td>
+      <label>Suggest anything</label>
+      <input type="checkbox" name="suggest_anything"/>
+    </td>
+    <td>
+      <label>Suggest MTS tickets</label>
+      <input type="checkbox" name="suggest_only_tickets"/>
+    </td>
+    <td>
+      <label>Suggest developer.paypal.com text</label>
+      <input type="checkbox" name="suggest_developer_paypal_com"/>
+    </td>
+    <td>
+      <label>Suggest Jira Tickets</label>
+      <input type="checkbox" name="suggest_anything"/>
+    </td>    
+  <tr>
+  <tr>
+
+     <select name="language">
+       <option value="english">English</option>
+       <option value="spanish">Spanish</option>
+       <option value="italian">Italian</option>
+       <option value="french">French</option>
+       <option value="german">German</option>
+     </select>
+     <select name="greeting">
+       <option value="1">Hello ______,<br>Thank you for contacting PayPal Merchant Technical Support.<br><br><br> I hope this information is useful to you, do not hesitate to contact me for any other question. <br><br>Regards</option>
+       <option value="2">Hello ______,<br>Thank you for calling PayPal.<br><br><br> I hope this is useful to you, do not hesitate to contact me for any other question. <br><br>Regards</option>
+
+     </select>
+-->
+  </tr>
+</table>
+<p>
+
+ <div id="autocomplete<%=data[2]%>" name="message<%=data[2]%>" class="editable" contenteditable="true" style="border:0px;">
+
+ </div>
+
+</p>
+</div>
+</div>

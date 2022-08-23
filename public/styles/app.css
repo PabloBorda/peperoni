@@ -1,0 +1,157 @@
+ .loading {
+      display: none;
+      width: 16px;
+      height: 16px;
+      background-image: url(loading.gif);
+      vertical-align: text-bottom;
+    }
+    /* autocomplete adds the ui-autocomplete-loading class to the textbox when it is _busy_, use general sibling combinator ingeniously */
+    #autocomplete1.ui-autocomplete-loading ~ .loading {
+      display: inline-block;
+    }
+    .ui-autocomplete .knows {
+      margin-right: 1em;
+      font-size: larger;
+      color: white;
+    }
+
+ul.ui-autocomplete
+{
+    
+    top: 0px!important;
+    right: 0!important;
+    width: 29%!important;
+    
+}
+
+
+#ui-id-1 {
+  top: 0px!important;
+
+}
+
+
+
+
+.ui-menu {
+  margin: 0;
+}
+
+.ui-widget {
+  font-size: 0.9em;
+
+}
+
+.ui-autocomplete {
+  cursor: default;
+  position: fixed;
+  left: 70%!important;
+}
+
+
+div.editable {
+    width: 70%;
+    height: 90%;
+    border: 1px solid #ccc;
+    padding: 5px;
+    background: #FFFFFF!important;
+    color: black!important;
+}
+
+#ui-id-2 {
+    width: 95%;
+    height: 100%;
+    background: white;
+
+}
+
+
+
+    .knows {
+      margin-right: 1em;
+      font-size: larger;
+      color: black!important;
+    }
+
+    .autocomplete-element {
+
+      table-layout: fixed;
+    }
+
+    .pics {
+      width: 75px;
+      
+    }
+
+   
+    .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+
+      background: #0C8DC4!important;
+      border: 1px solid #253B80!important;
+    }
+
+
+    .ui-widget-content {
+      color: white!important;
+
+    }
+
+
+
+    .ui-widget-content a {
+      color: blue!important;
+
+    }
+
+
+    .followscroll {
+      position: fixed;
+      top: 10px;
+      z-index: 50;
+
+    }
+
+
+#find_by_ticket_bar{
+  top: 30px;
+  position: absolute;
+  right: 0%
+
+}
+
+
+#static_feeds_menu {
+  left: 35%;
+  position: absolute;
+  top: 0px;
+
+}
+
+table{
+    table-layout: fixed;
+}
+
+
+td{
+    word-wrap:break-word
+}
+
+
+.ui-menu-item {
+  background: white!important;
+
+}
+
+
+.ui-autocomplete .ui-state-focus .autocomplete-element .knows {
+  color: white!important;
+
+}
+
+html body div#entire-site div.questions.ui-accordion.ui-widget.ui-helper-reset.ui-sortable div h3#ui-id-1.ui-accordion-header.ui-state-default.ui-accordion-icons.ui-corner-all.ui-state-hover {
+  color: white!important;
+}
+
+html body div#entire-site div.questions.ui-accordion.ui-widget.ui-helper-reset.ui-sortable div h3#ui-id-1.ui-accordion-header.ui-state-default.ui-accordion-icons.ui-corner-all{
+  color: white!important;
+}

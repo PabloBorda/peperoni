@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <!-- host: tfpsslc6-522311.slc01.dev.ebayc3.com/10.65.217.52 -->
+    <title>Admin for Dummies</title>
+    <!-- Bootstrap -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link href="https://tfps.vip.slc01.dev.ebayc3.com/lib/bootstrap-300/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link href="https://tfps.vip.slc01.dev.ebayc3.com/lib/bootstrap-300/css/bootstrap-theme.css" rel="stylesheet" media="screen">
+    
+    
+        <link href="https://tfps.vip.slc01.dev.ebayc3.com/lib/jqueryui/css/redmond/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" media="screen">
+    <link href="https://tfps.vip.slc01.dev.ebayc3.com/lib/morris/morris.css" rel="stylesheet" media="screen">
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/bootstrap-300/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/jqueryui/js/jquery-ui-1.9.2.custom.min.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/tablesorter/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/fc/FusionCharts.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/morris/raphael.min.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/morris/morris.min.js"></script>
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/lib/easy-pie-chart-master/dist/jquery.easypiechart.min.js"></script>    
+
+    
+    <script type="text/javascript" src="https://tfps.vip.slc01.dev.ebayc3.com/js/main.js"></script>
+
+      
+    <style type="text/css">
+
+    body{
+      font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+      font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+    a{color: #0079c1;}
+    div, span, p, td {
+    font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+  .container {
+    min-height: 600px;
+    padding-right: 0px;
+    padding-left: 0px;
+  }
+
+      .center {
+         float: none;
+         margin-left: auto;
+         margin-right: auto;
+      }
+
+      h1{color: #99999A;}
+      h2{color: #0079c1;}
+      h3{color: #009CDE;}
+      h4{color: #003087;}
+      .middle {
+      margin: 180px 0;
+      }
+      .close{
+        color: red;
+        opacity: .6;
+      }
+
+    a.mytooltip {
+      color: #000000;
+      text-decoration: none;
+      border-bottom:1px dashed #428bca;
+    }
+
+    .form-center{
+      color: #555555;
+      cursor: default;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      padding: 10px 25px;
+    }
+
+    .nav-group {
+      margin-bottom: -1px;
+    }
+
+    .form-center .form-group {
+      margin-bottom: 0px;
+    }
+
+    input.datepicker {
+      display: inline;
+    }
+
+      body {
+        padding-top: 5px;
+        padding-bottom: 40px;
+        margin: 0px 20px 20px 20px;
+        background: #f6f6f6 url(https://tfps.vip.slc01.dev.ebayc3.com/lib/img/background2.jpg) repeat 50% 0;
+      }
+
+      .jumbotron {
+        background-color: transparent;
+      }
+
+
+  .a-white{
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    /*border-radius: 4px 4px 4px 4px ; */
+    margin-top: -2px;
+    padding: 0px 10px 0px 10px;
+    min-height: 500px;
+    min-width: 970px;
+  }
+
+  .alert-ppapirc {
+    border-color: #8BB8DB;
+  }
+  .modal-dialog {
+    right: auto;
+    left: 50%;
+    width: 800px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .tab-content{
+    padding: 10px;
+  }
+    </style>
+  </head>
+  <body>
+    <div id="box" class="container">
+      <div style="background-color: #ffffff;">
+        <div id="brand" class="pull-left" style="margin-top: 10px;"><a href="/"><img alt="Admin for Dummies" class="siteLogo normalLogo" src="/images/paypal-admin-for-dummies.png"></a></div>
+        <div id="pils" class="pull-right">
+        
+
+<ul class="nav nav-pills">
+
+			
+		
+	
+			
+</ul>        </div>
+      </div>
+      <div class="clearfix"></div>
+                <style type="text/css">
+      .jumbotron {
+      margin: 180px 0;
+      text-align: center;
+      }
+      .jumbotron h1 {
+      font-size: 100px;
+      line-height: 1;
+      }
+      </style>
+
+      <div class="jumbotron">
+          <label><h2>PEPERONI</h2></label><br>
+          <label><h2>Paypal tEch suPport intEgRation tOol aNd edItor</h2></label>
+          
+                    <script src="https://www.paypalobjects.com/js/external/api.js"></script>
+<div class="center" style="width: 400px;">
+	<div class="tab-content form-center" style="margin-top: -2px;">
+		<div class="tab-pane active" id="corp">
+		<div id="req-form">
+
+
+		<form role="form" method="post" id="ppform__do_login_corp" name="ppform_name" action="/login"><fieldset>
+			<div id="email_div" class="form-group">
+            	<label class="control-label" for="email">Your corp email</label>
+              		<input id="email_input" type="text" class="form-control"" name="email" value="">
+          	</div>
+          	<div id="1_div" class="">
+          		<hr><span class="help-block"></span>
+          	</div><input type="submit" class="button clear btn btn-primary pull-right" name="register" value="LOG_ME_IN"/>
+			<input type="hidden" name="cmd" value="_do_login_corp" /></fieldset>
+		</form>
+</div>		</div>
+	</div>
+</div>
+      </div> 
+    </div>
+
+    <div class="footer">
+      <hr>
+        <span>PEPERONI <small>1.0</small> | <a href="mailto:pborda@paypal.com?Subject=PEPERONI" target="_top"> issues / questions / feedback <span class="glyphicon glyphicon-envelope"></span></a></span>
+        <span class="pull-right" style="color: #009CDE;">
+		<span class="glyphicon glyphicon-user"></span> <a style="color: #009CDE;" href="https://tfps.vip.slc01.dev.ebayc3.com/user"></a>
+		</span>
+    </div>
+  </body>
+</html>

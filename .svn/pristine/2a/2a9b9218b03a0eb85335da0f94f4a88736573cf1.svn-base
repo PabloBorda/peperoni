@@ -1,0 +1,310 @@
+<html>
+
+  <title> Admin tools for idiots </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+
+
+
+ 
+ <link type="" href="/styles/app.css?t=<%=Time.now.strftime("%Y%m%d%H%M%S").to_s%>" rel="stylesheet">  
+<link type="" href="/styles/jquery-ui.css?t=<%=Time.now.strftime("%Y%m%d%H%M%S").to_s%>" rel="stylesheet"> 
+  <!--<link type="" href="http://code.jquery.com/ui/1.10.0/jquery-ui.min.js" rel="stylesheet"> -->
+ <link type="" href="/styles/jquery.slidepanel.css?t=<%=Time.now.strftime("%Y%m%d%H%M%S").to_s%>" rel="stylesheet"> 
+ <link type="" href="/styles/stars.css" rel="stylesheet"/>
+ <!--<link rel="image_src" href="http://www.thepetedesign.com/images/wheelmenu_image.png" /> -->
+<link type="" href="/styles/wheelmenu.css" rel="stylesheet"/>
+
+<style>
+
+    .wrapper {
+      height: auto !important;
+      height: 100%;
+      margin: 0 auto; 
+      overflow: hidden;
+    }
+    
+    a {
+      text-decoration: none;
+    }
+    
+    
+    h1, h2 {
+      width: 100%;
+      float: left;
+    }
+    h1 {
+      margin-top: 100px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    h2 {
+      color: #999;
+      font-weight: 100;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    
+    .pointer {
+      color: #34495e;
+      font-family: 'Pacifico', cursive;
+      font-size: 22px;
+      margin-top: -15px;
+    }
+
+    .wheel-button, .wheel-button:visited {
+      line-height: 35px;
+      font-weight: bold;
+      background-color: #00ff00;
+      
+      /*padding: 10px 11px;*/
+      text-align: center;
+      
+     /* width: 200px;*/
+      
+      color: white;
+      display: inline-block;
+      
+     
+    /*  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.25);*/
+    }
+
+    .wheel-button:hover{ 
+      color: white;
+    }
+    
+    .wheel-button.ne {
+      border-color: white;
+      background: none;
+      color: #34FFFF;
+      
+      bottom: 10px;
+      left: 10px;
+    }
+    
+    .wheel-button.nw {
+      border-color: white;
+      background-color: #E67E22;
+      color: #FFFC44;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .wheel-button span, .wheel span{
+      position: relative;
+      -moz-transition: all 1s ease;
+      -webkit-transition: all 1s ease;
+      -o-transition: all 1s ease;
+      transition: all 1s ease;
+      display: block;
+    }
+
+    .wheel-button.active span{
+      transform: rotate(135deg);
+      -ms-transform: rotate(135deg); /* IE 9 */
+      -webkit-transform: rotate(135deg); /* Safari and Chrome */
+    }
+
+    .wheel li a, .wheel li a:visited{
+      background: rgba(0,0,0,0.65);
+      border-radius: 50px;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      /*width: 20px;
+      height: 20px;
+      border: 1px solid black;*/
+      box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.5);
+      -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.5);
+      -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.5);
+      color: white;
+      -moz-transition: all 0.25s ease;
+      -webkit-transition: all 0.25s ease;
+      -o-transition: all 0.25s ease;
+      transition: all 0.25s ease;
+    }
+
+    .wheel li a:hover{
+      background: rgba(0,0,0,0.8);
+    }
+
+    .main {
+      float: left;
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .reload, .btn{
+      display: inline-block;
+      border: 4px solid #FFF;
+      border-radius: 5px;
+      -moz-border-radius: 5px;
+      -webkit-border-radius: 5px;
+      background: rgba(255,255,255, 0.75);
+      display: inline-block;
+      line-height: 100%;
+      padding: 0.7em;
+      text-decoration: none;
+      opacity: 0.7;
+      color: #555;
+      width: 100px;
+      line-height: 140%;
+      font-size: 17px;
+      font-family: open sans;
+      font-weight: bold;
+    }
+    .reload:hover, .btn:hover {
+      background: white;
+    }
+    .btn {
+      width: 200px;
+    }
+    .btns {
+      width: 230px;
+      margin: 50px auto;
+    }
+    .credit {
+      text-align: center;
+      color: #999;
+      padding: 10px;
+      margin: 0 0 40px 0;
+      background: rgba(255,255,255,0.25);
+      float: left;
+      width: 100%;
+    }
+    .credit a {
+      color: #555;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+
+
+
+
+.ppbutton {
+ 
+      padding: 0px 0px!important;
+      width: 77px!important;
+    }
+
+  </style>
+  
+  
+
+  <script src="/javascripts/nonmini/jquery.js"></script>
+  <script src="/javascripts/nonmini/jquery-ui.js"></script>
+  <!--<script src="http://code.jquery.com/ui/1.10.0/jquery-ui.min.js"></script>-->
+  <script src="/javascripts/jquery.slidepanel.js"></script>
+  <script src="/javascripts/nonmini/app.js"></script>
+  <script src="/javascripts/ejs_production.js"></script>
+  <script src="/javascripts/jquery.wheelmenu.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#leftmenu").wheelmenu({
+    trigger: "hover", // Can be "click" or "hover". Default: "click"
+    animation: "fly", // Entrance animation. Can be "fade" or "fly". Default: "fade"
+    animationSpeed: "instant", // Entrance animation speed. Can be "instant", "fast", "medium", or "slow". Default: "medium"
+    angle: "SE", // Angle which the menu will appear. Can be "all", "N", "NE", "E", "SE", "S", "SW", "W", "NW", or even array [0, 360]. Default: "all" or [0, 360]
+  });
+});
+
+
+</script>
+
+
+<body>
+<div style="top:0px;" class="ppbutton">
+<a id="leftmenu" href="#menu" class="">
+ <span><img src="/images/ppbtn.png" witdth="60px" height="60px"/></span>
+</a>
+<ul id="menu" class="wheel">
+  <li class="item"><a href="#home">MY INBOX</a></li>
+  <li class="item"><a href="#home">QUEUES</a></li>
+  <li class="item"><a href="#home">ADDONS</a></li>
+  <li class="item"><a href="#home">LOG OUT</a></li>
+ 
+</ul>
+</div>
+
+
+<br>
+<br>
+
+<div id="entire-site">
+
+
+  <div id="static_feeds_menu" align="center">
+    <table>
+      <tr id="static_feeds">
+        
+      </tr>
+    </table>
+
+  </div>
+
+
+
+  <div id="find_by_ticket_bar" align="right" valign="top">
+    <a href="/">Log Out</a>
+    <label>Find by ticket#</label>
+    <input type="text" id="find_by_ticket_number_field" name="find_by_ticket_number_field"/>
+    <button name="load_ticket" id="load_ticket" onclick="load_ticket_by_number()">Load</button>
+    
+  </div>
+  <br>
+
+
+
+  <div class="questions">
+  
+
+
+
+
+
+
+   <!--<div>
+ <h3>Subject</h3>
+    <div>
+    <p>    
+      <div id="autocomplete" name="message" class="editable"></div>    
+    </p>
+    </div>
+  </div>
+  
+     <h3>Subject</h3>
+    <div>
+    <p> 
+      <div id="autocomplete2" name="message2" class="editable"></div>
+    </p>
+    </div>
+    <h3>Subject</h3>
+    <div>
+    <p> 
+      <div id="autocomplete3" name="message3" class="editable"></div>
+    </p>
+    
+    </div>
+    <h3>Subject</h3>
+    <div>
+    <p>
+      <div id="autocomplete4" name="message3" class="editable"></div>
+    </p>
+    </div> -->
+  </div>
+
+
+<div id="dialog" title="Response">
+  
+</div>
+
+
+  </body>
+
+
+</html>

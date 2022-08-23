@@ -1,0 +1,123 @@
+require 'rubygems'
+require 'mechanize'
+require 'tire'
+require 'yajl/json_gem'
+require 'json'
+require 'mongo'
+require 'bson'
+require 'sinatra'
+
+module AdminManager
+
+  class AdminManager
+  
+    @logged_in_page = nil
+    
+    def initialize
+    
+      m = Mechanize.new{|a|  a.ssl_version, a.verify_mode = 'SSLv3', OpenSSL::SSL::VERIFY_NONE, a.gzip_enabled = false}
+      page = m.get("https://admin.paypal.com/cgi-bin/admin")      
+      puts "================================================= " + page.title
+      
+      form_login = page.forms.first
+      form_login['id_username'] = "pborda"
+      form_login['id_password'] = "pan.hot.red-502"
+      @logged_in_page = form_login.submit
+      puts @logged_in_page.body
+    end
+    
+    
+    # https://admin.paypal.com/cgi-bin/admin?node=transactionlog_flow&account_number=2203545717721305823
+    
+
+    
+    def transaction_id(id)
+      form_find_user = @logged_in_page.forms['form_findUser']
+      form_find_user['id_transactionId'] = id
+      find_user_response = form_find_user.submit    
+      find_user_response.body.to_s
+    end
+    
+    
+    
+    
+    
+    
+    
+  end
+end
+
+
+app.post '/learn*' do
+
+
+  sample_ticket = JSON.parse("{
+        \"RightNowTicket\": [
+            {
+                \"RefNum\": \"666666-666666\",
+                \"DateEntered\": \"66/66/6666 66:66 AM\",
+                \"AccountID\": \"\",
+                \"CID\": \"\",
+                \"Subject\": \"\",
+                \"EntryType\": \"2\",
+                \"Assigned\": \"\",
+                \"Status\": \"\",
+                \"SupportLevel\": \"\",
+                \"ContactEmail\": \"\",
+                \"Priority\": \"\",
+                \"TargetVersion\": \"\",
+                \"TargetDate\": \"\",
+                \"BugID\": \"\",
+                \"Severity\": \"\"
+            }
+        ],
+        \"Ack\": \"Success\",
+        \"CorrelationID\": \"\",
+        \"Errors\": null,
+        \"Version\": \"1\",
+        \"Build\": \"11\"
+    }
+
+")
+
+
+
+  unless params[:learnfile] &&
+      (tmpfile = params[:learnfile][:tempfile]) &&
+      (name = params[:learnfile][:filename])
+    @error = "No file selected"
+    return haml(:upload)
+  end
+
+
+  pick_all_directly_from_file = tmpfile.read
+
+
+  chunks = pick_all_directly_from_file.gsub("\t","").gsub("\r","").split("\n")
+
+
+
+
+
+  chunks.each_slice(5) do |a,b,c,d,e|
+
+
+    sample_ticket['RightNowTicket'][0]['Note'] = [{:paragraph => a.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => b.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => c.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => d.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => e.to_s.gsub("\n","").force_encoding("utf-8")}]
+
+    # puts sample_ticket['RightNowTicket'][0]['Note'].to_json
+
+    Tire.index 'tickets-notes-converted-into-paragraphs' do
+
+      my_ticket = sample_ticket.clone
+
+      store (my_ticket)
+
+      refresh
+
+
+    end
+
+
+  end
+  "OK FINISHED"
+end

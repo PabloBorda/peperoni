@@ -1,0 +1,411 @@
+#encoding: utf-8
+require 'rubygems'
+require 'sinatra'
+require 'sinatra/base'
+require 'sinatra/assetpack'
+require 'to_regexp'
+require 'set'
+require 'oj'
+require 'date'
+require 'levenshtein'
+require 'thin'
+require 'nokogiri'
+
+
+
+
+session_store = {}
+
+
+class Object
+  def to_json
+    Oj.dump(self)
+  end
+
+
+end
+
+
+
+
+Encoding.default_external = Encoding::UTF_8
+#class AdminTools < Sinatra::Base; end
+
+app = Sinatra.new
+
+app.set :public_folder, 'public'
+app.set :bind, '0.0.0.0'  
+app.set :port,9092
+#app.set :server, 'thin'
+app.enable :sessions
+
+app.set :show_exceptions => false
+
+app.error { |err|
+  Rack::Response.new(
+    [{'error' => err.message}.to_json],
+    500,
+    {'Content-type' => 'application/json'}
+  ).finish
+}
+
+# THIS IS AN ADDON ARCHITECTURE, NO DIRTY CLASSES AND COMPLICATED PATTERNS .. AS EASY AS THAT !
+# ONLY OBJECTS
+# THIS STUFF IS QUITE ABSTRACT AND IT WORKS
+
+addons = []
+Dir.entries('addons').each do
+  |dir|
+  if (dir.include? ".rb")
+    file_source_code = File.open("addons/" + dir, "rb")
+    addon_source_code_as_string = file_source_code.read
+    addon = eval(addon_source_code_as_string)   
+    addons.push(addon)
+  end
+end
+
+
+
+
+
+app.before /[a-zA-Z][_]feed/ do
+
+  puts "RUNNING BEFORE "
+  
+
+  addons.each do |a|
+    if a[:type].include? "FEED"      
+
+      login_session_result = {}
+      
+      #puts "OPENNED SESSIONS " + session_store.to_json
+      while (session_store[(session[:username] + "|||" + a[:addon_name])].nil?)
+        begin
+          puts "Trying to connect to " + a[:addon_name].to_s
+          login_session_result = a[:login].call()
+          session_store[(session[:username] + "|||" + a[:addon_name])] = ({:name => a[:addon_name],:session => login_session_result})
+        rescue Exception => e  
+          puts "Failed login for feed " + a[:addon_name] + " REASON: " + e.message
+
+        
+        end     
+      end
+      puts "LOGGED IN TO : " + a[:addon_name].to_s
+    end    
+  end
+end
+
+
+
+addons.each do |a|
+  puts a.to_json
+  if (a[:type]=="DYNAMIC_FEED")
+    puts "IS A DYNAMIC_FEED"
+    app.get ("/" + a[:addon_name] + "*"),&a[:retriever]
+  end
+
+  puts "helper_methods " + a[:helper_methods_exposed_to_url].to_json
+  if (!a[:helper_methods_exposed_to_url].nil?)
+    a[:helper_methods_exposed_to_url].each do |method_object|
+      method_object.each_pair do |method_name,method_block|
+      puts "METHOD_NAME_FROM_ADDON " + method_name.to_s + " METHOD_BLOCK " + method_block.to_s
+        app.get "/" + method_name.to_s + "*", &method_block
+        app.post "/" + method_name.to_s + "*", &method_block
+      end
+    end
+  end
+end
+
+
+
+
+  app.get '/' do
+    session[:feed_sessions] = []
+    erb :login
+  end
+
+
+  allowed_people = ["pborda@paypal.com","amusumeci@paypal.com","mlaskowski@paypal.com","anegro@paypal.com"]
+
+
+  app.post '/login*' do
+    puts "MY SESSION HAS " + session.to_json
+    session[:username] = params[:email]   
+    puts "LOGIN WITH " + params[:email].to_s
+    if (allowed_people.include? session[:username])
+      erb :search
+    else
+      "DENIED"
+    end
+  end
+
+
+
+
+  app.get '/suggest_me' do
+    begin
+      findstr = params[:q]
+      suggestions = []
+      feed_addons = addons.select {|a| a[:type].to_s.eql? "DYNAMIC_FEED"}
+      processed_suggestions = []
+      feed_addons.each do |a|
+
+        #byebug
+        session_feed =  session_store[(session[:username].to_s + "|||" + a[:addon_name].to_s)][:session]
+        #puts "SESSION FROM SUGGEST_ME METHOD " + session_feed.to_json
+
+        from_dynamic_feed_addon = a[:processor].call(a[:retriever].call(session_feed,params),findstr)
+
+        if (!from_dynamic_feed_addon.nil?)
+          processed_suggestions = processed_suggestions + from_dynamic_feed_addon
+        else
+          processed_suggestions
+        end
+      end
+       a = { 
+         :query => params[:q].to_s,
+         :suggestions => processed_suggestions
+         #:suggestions => global_suggestions_filter(processed_suggestions,findstr)
+        }.to_json
+
+      a
+
+      rescue Exception => e
+        puts e.message
+        puts e.backtrace.inspect
+        return ""
+      end
+
+
+  end
+
+  def parse_function(ticket,level,sibling,addons)
+    markup = ""
+    if !ticket.nil?
+      ticket_html = Nokogiri::HTML(ticket)
+      ticket_html_text_nodes = ticket_html
+      
+      ticket_html_text_nodes_processed = ticket_html_text_nodes.traverse do
+        |t|
+
+        if t.text?
+          puts "PARSING NODE: " + t.text.to_s
+          addons.each do |a|
+              if (a[:type]=="WEB")
+                k = a[:addon_name]
+                puts "SEARCHING " + k.to_s
+                v = a[:matching_lambda]
+                r = a[:render_lambda]
+                mo = a[:on_mouse_over_lambda]
+                hmetu = a[:menu_items]
+                childs = a[:childs]
+                parent = a[:parent]
+                 
+                v1 = v.call
+                t.content.gsub!(/#{v1}/) do |matched|
+                 if r.nil?
+                   r =  Proc.new { |addon,matched|
+
+                    menu_options = ""
+
+                    a[:menu_items].each { |e| 
+                      menu_options = menu_options + "<li><a href=\"#\">" + e.keys[0].to_s +  "</a></li>"
+
+                    }
+
+                    sibling = 0
+                    if !childs.nil?
+                      childs.each { |e|
+                        menu_options = menu_options + parse_function(ticket,level+1,sibling,addons)
+                        sibling = sibling + 1
+
+                      }
+                    end
+
+
+                     building_menu = "<nav id=\"radial-menu" + level.to_s + "\">" + 
+                                       "<input type=\"button\" id=\"toggle-radial" + level.to_s + "\" value=\"" + matched.to_s +  "\" >" +
+                                          "<ul class=\"level-" + (level.to_i + 1).to_s + "\">" + 
+                                             menu_options + 
+                                          "</ul>" + 
+                                     "</nav>"
+                     puts "MYMENU! "  +  building_menu.to_s
+                     building_menu.to_s
+
+
+                   }
+                 end
+                 if mo.nil?
+                   mo = Proc.new { |addon|    
+                    "".to_s
+                   }
+                 end
+              
+                 parsed_value = (r.call(a,matched).to_s + mo.call(a).to_s)
+                 puts "REPLACING: " + t.content + " BY: " + parsed_value
+                 parsed_value
+                end
+              end
+          end
+        end
+      end
+      markup = ticket_html_text_nodes_processed
+    end
+    puts "FINAL MARKUP IS: " + markup.to_s
+    markup
+  end
+
+
+
+
+
+
+
+
+  app.post '/parse*' do
+
+    parse_function(params[:ticket],0,0,addons).to_s  
+  end
+
+
+app.get '/suggestion_item.ejs' do
+  File.read(File.join('views', 'suggestion_item.ejs'))
+end
+
+
+app.get '/new_editor.ejs' do
+  File.read(File.join('views', 'new_editor.ejs'))
+end
+
+
+
+
+app.get '/tools' do
+  erb :tools
+
+end
+
+
+app.post '/static_feeds' do
+  begin
+    @static_feeds_notification_area = ""
+
+    addons.each do |a|
+      puts a.to_json
+      if (a[:type]=="STATIC_FEED")
+        puts "IS A STATIC_FEED"
+        addon_session = session_store[(session[:username].to_s + "|||" + a[:addon_name].to_s)][:session]
+        puts "addon_session: " + addon_session.inspect 
+        addon_retrieved_data = a[:retriever].call(addon_session,params[:query])
+        puts "i got search term: " + params[:query]
+        puts "addon_retrieved_data: " + addon_retrieved_data.inspect
+        addon_processed_data = a[:processor].call(addon_retrieved_data, params[:query])
+        puts "addon_processed_data: " + addon_processed_data.inspect
+        #byebug
+  
+        addon_processed_data_renderized = addon_processed_data.inject("") { |r,e| r = r + "<li class=\"last\"><a href='#'><span>" + e[:knows] + "</span></a></li>" }
+ 
+      
+
+
+
+        @static_feeds_notification_area = @static_feeds_notification_area + "<li class='has-sub'><a href='#'><span><img  src=\"/images/" + a[:addon_name] + ".png\" />" + 
+        "</span></a><ul>" + addon_processed_data_renderized + "</ul></li>"
+      end
+    end
+    @static_feeds_notification_area
+    erb :static_feeds
+
+  rescue
+    puts "static_feeds failed, I dont care, next time will work"
+
+  end
+end
+
+
+app.routes["GET"].each do |route|
+  puts "ROUTE GET: " + route[0].to_s
+end
+
+
+app.routes["POST"].each do |route|
+  puts "ROUTE POST: " + route[0].to_s
+end
+
+
+
+app.post '/learn*' do
+
+
+  sample_ticket = JSON.parse("{
+        \"RightNowTicket\": [
+            {
+                \"RefNum\": \"666666-666666\",
+                \"DateEntered\": \"66/66/6666 66:66 AM\",
+                \"AccountID\": \"\",
+                \"CID\": \"\",
+                \"Subject\": \"\",
+                \"EntryType\": \"2\",
+                \"Assigned\": \"\",
+                \"Status\": \"\",
+                \"SupportLevel\": \"\",
+                \"ContactEmail\": \"\",
+                \"Priority\": \"\",
+                \"TargetVersion\": \"\",
+                \"TargetDate\": \"\",
+                \"BugID\": \"\",
+                \"Severity\": \"\"
+            }
+        ],
+        \"Ack\": \"Success\",
+        \"CorrelationID\": \"\",
+        \"Errors\": null,
+        \"Version\": \"1\",
+        \"Build\": \"11\"
+    }
+
+")
+
+
+
+  unless params[:learnfile] &&
+      (tmpfile = params[:learnfile][:tempfile]) &&
+      (name = params[:learnfile][:filename])
+    @error = "No file selected"
+    return haml(:upload)
+  end
+
+
+  pick_all_directly_from_file = tmpfile.read
+
+
+  chunks = pick_all_directly_from_file.gsub("\t","").gsub("\r","").split("\n")
+
+
+
+
+
+  chunks.each_slice(5) do |a,b,c,d,e|
+
+
+    sample_ticket['RightNowTicket'][0]['Note'] = [{:paragraph => a.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => b.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => c.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => d.to_s.gsub("\n","").force_encoding("utf-8")},{:paragraph => e.to_s.gsub("\n","").force_encoding("utf-8")}]
+
+    # puts sample_ticket['RightNowTicket'][0]['Note'].to_json
+
+    Tire.index 'tickets-notes-converted-into-paragraphs' do
+
+      my_ticket = sample_ticket.clone
+
+      store (my_ticket)
+
+      refresh
+
+
+    end
+
+
+  end
+  "OK FINISHED"
+end
+
+app.run!

@@ -1,0 +1,34 @@
+# cal addon
+# finds errors in all pools and shows up summary
+
+{
+  :addon_name => "cal_web",
+  :type => "WEB",
+  :matching_lambda => Proc.new { /(?=\w*\d)(?=\w*[a-z])\w{12,13}/
+    
+   },
+  :menu_items => [{ :find_errors_on_cal => Proc.new { 
+                                            
+                                             "<iframe width=\"800\" height=\"600\" src=\"http://10.64.255.76:6666/search_cal_errors?cal=" + params[:matched_value] + "&run=Search\">Your browser does not support iframes</iframe>"
+                                           }
+                      },
+                      {:visit_cal_site => Proc.new {
+                                    
+                                           "<iframe width=\"800\" height=\"600\" src=\"http://cal.vip.paypal.com/cgi/idsearch_manager.py?id_type=corr_id&id_value=" + params[:matched_value] + "&fetchlog=1&submit=Search\">Your browser does not support iframes</iframe>"
+                                          }
+
+                      }, 
+                      { 
+                        :find_errors_on_cal_quick_search => Proc.new {
+                             "<iframe width=\"800\" height=\"600\" src=\"http://10.64.255.76:6666/search_cal_errors?cal=" + params[:matched_value] + "&run=QuickSearch\">Your browser does not support iframes</iframe>"
+
+                        }
+ 
+
+                      }
+                                        
+  ],
+  :color => "#F69126",
+  :childs => [],
+  :parent => ""
+}

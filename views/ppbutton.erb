@@ -1,0 +1,48 @@
+ 
+<div id="paypal_menu_button" style="width: 700;height: 400">
+  
+  <script src="file:///C:/Projects/peperoni-mac/peperoni/public/javascripts/jquery.wheelmenu.js"></script>
+
+
+
+<link type="" href="file:///C:/Projects/peperoni-mac/peperoni/public/styles/wheelmenu.css" rel="stylesheet"/>
+
+
+  <script type="text/javascript">
+
+
+  $(document).ready(function(){
+
+    $("#leftmenu").wheelmenu({
+      trigger: "hover", // Can be "click" or "hover". Default: "click"
+      animation: "fly", // Entrance animation. Can be "fade" or "fly". Default: "fade"
+      animationSpeed: "instant", // Entrance animation speed. Can be "instant", "fast", "medium", or "slow". Default: "medium"
+      angle: "SE", // Angle which the menu will appear. Can be "all", "N", "NE", "E", "SE", "S", "SW", "W", "NW", or even array [0, 360]. Default: "all" or [0, 360]
+      });
+    });
+
+   $('#ppbutton').scroll(function() { 
+       $('.followscroll').css('top', $(this).scrollTop()); 
+   });
+
+
+  </script>
+
+
+
+        
+            <div style="top:0px;" class="ppbutton">
+<a id="leftmenu" href="#menu" class="">
+ <span><img src="file:///C:/Projects/peperoni-mac/peperoni/public/images/ppbtn.png" witdth="60px" height="60px"/></span>
+</a>
+<ul id="menu" class="wheel">
+  <li class="item"><a href="/login">MY INBOX</a></li>
+  <li class="item"><a href="/queues">QUEUES</a></li>
+  <li class="item"><a href="#" onclick="show_addons_list();">ADDONS</a></li>
+  <li class="item"><a href="/logout">LOG OUT</a></li>
+ 
+</ul>
+</div>
+
+
+        </div>

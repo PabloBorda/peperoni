@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/Gemfile" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/addons/elastic_search_tickets_feed.rb" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/public/javascripts/nonmini/app.js" charset="UTF-8" />
+  </component>
+</project>

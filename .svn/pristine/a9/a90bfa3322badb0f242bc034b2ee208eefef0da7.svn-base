@@ -1,0 +1,13 @@
+file.reference.Projects-peperoni=.
+javac.classpath=
+main.file=admin.rb
+platform.active=Ruby_0
+source.encoding=UTF-8
+src.addons.dir=addons
+src.downloads.dir=downloads
+src.helpers.dir=helpers
+src.nbproject.dir=nbproject
+src.peperoni.dir=${file.reference.Projects-peperoni}
+src.public.dir=public
+src.samples.dir=samples
+src.views.dir=views

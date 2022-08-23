@@ -1,0 +1,48 @@
+require 'mechanize'
+
+{
+  :addon_name => "everest",
+  :type => "WEB",
+  :matching_lambda => Proc.new { Regexp.new("((is not available|is available|is available?)|australia|belgium|brazil|china|france|germany|hong kong|ireland|italy|luxemburgo|mexico|netherlands|norway|poland|russia|singapore|spain|sweden|turkey|united kingdom|united states)", "i") },
+
+  :menu_items => [{ :check_everest_service_sheet => Proc.new { 
+
+                                             country_codes = { "australia" => "AU",
+                                                               "belgium"=> "BE",
+                                                               "brazil"=>"BR",
+                                                               "china"=>"CN",
+                                                               "france"=>"FR",
+                                                               "germany"=>"DE",
+                                                               "hong kong"=>"HK",
+                                                               "ireland"=>"IE",
+                                                               "italy"=>"IT",
+                                                               "luxemburgo"=>"LU",
+                                                               "mexico"=>"MX",
+                                                               "netherlands"=>"NL",
+                                                               "norway"=>"NO",
+                                                               "poland"=>"PL",
+                                                               "russia"=>"RU",
+                                                               "singapore"=>"SG",
+                                                               "spain"=>"ES",
+                                                               "sweden"=>"SE",
+                                                               "turkey"=>"TR",
+                                                               "united kingdom"=>"GB",
+                                                               "united states"=> "US"  }
+
+                                             if (!params[:matched_value].include? "available")
+
+  	                                           "<iframe width=\"800\" height=\"600\" src=\"http://apslb.corp.ebay.com/everest/factsheet-countries.php?country=" + country_codes[params[:matched_value]].to_s + "\">Browser does not support iframe</iframe>"
+
+                                             else
+                                               "<p>Type a country in the message</p>"
+                                             end
+
+                                           }}
+                                        
+  ],
+  :color => "#3A8437",
+  :childs => [],
+  :parent => ""
+
+
+}

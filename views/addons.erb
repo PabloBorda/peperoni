@@ -1,0 +1,134 @@
+
+<script src="/javascripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="/javascripts/addon_builder.js" type="text/javascript" ></script>
+
+
+
+
+<style type="text/css" media="screen">
+
+#editor {
+    bottom: 50;
+    left: 90;
+    position: absolute;
+    right: 50;
+    top: 300;
+ 
+}
+
+#toolbar {
+  position: absolute;
+  left: 5;
+
+  top: 300;
+
+}
+</style>
+
+<table>
+
+	<tr><td>Find an add-on</td><td></td><td></td></tr>
+	<tr><td><input style="font-size:25px;color:blue" type="text"/></td><td><input type="button" value="search"></td><td><input type="button" value="create_new_addon" onclick="open_new_addon_editor();"></td></tr>
+
+</table>
+
+<br>
+<div id="addon_list_results">
+
+<table id="addons_list" class="CSS_Table_Example" style="width:600px;height:150px;">
+
+	<tr><td>Addon name</td><td>Description</td><td>Permission</td><td>Install</td></tr>
+
+	<% session[:my_addons].each do  |a| %>
+	
+	<%=      "<tr><td>#{a[:addon_name]}</td><td>#{a[:description]}</td><td>#{a[:allowed]}</td><td><input type='button' value='Install'/></td></tr>" %>      
+	  
+	
+    <%    end %>
+</table>
+
+</div>
+
+
+<div id="toolbar">
+<table>
+  <tr>
+    <td>
+       <button id="save_as_btn" onclick="save_addon();">Save</button>
+    </td>
+
+  </tr>
+  <tr>
+    <td>
+       <button id="test_btn">Test<br>addon</button>
+    </td>
+
+  </tr>
+
+  <tr>
+    <td>
+       <button id="test_btn">Test<br>ruby</button>
+    </td>
+
+  </tr>  
+
+
+
+
+
+</table>
+
+
+</div>
+
+<div id="editor" align="left">
+ 
+# This is a very basic example of addons.. detects an account number, a string sequence with 19 numbers.
+# In order to test and edit regular expressions use the following tool https://regex101.com
+# The code you see is ruby code, the regular expression should work in JavaScript, they are quite similar in Ruby and Javascript, and in most cases they do
+# not require any changes. 
+# feedback: pborda@paypal.com
+
+
+
+{
+
+
+  :addon_name => "account_number_web",
+  :description => "Detects account numbers and show up menu with tools such us find account, view las flowlog activity, etc...",
+  :type => "WEB",
+  :matching_lambda => "[0-9]{19}",
+
+  :menu_items => [{ :account_number => Proc.new { 
+ 
+                                             # Automate existing systems using mechanize... the followin logs into admin tools and retrieves the account main page
+                                             require 'json'
+                                             require 'mechanize'
+                                             puts "ACCOUN ADDONS GET PARAMETERS" + params.to_json
+                                             agent = Mechanize.new{|a|  a.ssl_version, a.verify_mode = 'SSLv3', OpenSSL::SSL::VERIFY_NONE, a.gzip_enabled = false}
+                                             page = agent.get "https://admin.paypal.com/cgi-bin/admin"
+                                             page.forms.first[:mac_admin_name] = "xxxxxxxxx"
+                                             page.forms.first[:static_password_text] = "xxxxxxxx"
+                                             page_logged_in = agent.forms.first.submit
+
+
+                                             page_account = agent.get "https://admin.paypal.com/cgi-bin/admin?node=loaduserpage_home&account_number=" + params[:matched_value].to_s + "&page_selector=ar_home"
+                                             page_account.body
+
+                                           }},
+                                           { :browse_flowlogs => Proc.new { 
+                                             
+                                             "Browse flowlogs"
+
+                                           } }
+                                        
+  ],
+  :color => "#01447C",
+  :childs => [],
+  :parent => ""
+
+
+}
+</div>
+

@@ -1,0 +1,52 @@
+require 'rubygems'
+require 'mechanize'
+require 'json'
+
+
+
+
+ {:base_url => "https://www.googleapis.com/customsearch/v1?",
+  :username => "",
+  :password => "",
+  :addon_name => "developer_paypal_com_feed",
+  :description => "Shows developer.paypal.com documents based on similarity by what you are typing in a menu at the top.",
+  :type => "STATIC_FEED",
+  :matching_lambda => Proc.new {  },
+  :login => Proc.new { 
+  },
+  :retriever => Proc.new { |login_result,search_term|
+     
+    a = RestClient.get "https://www.googleapis.com/customsearch/v1?key=AIzaSyAwD4AhPgmdevuDOEZvT6CC6l_-91gVBcM&cx=013716982334531359006:ih5yalwrktw&q=" + search_term.gsub(" ","%20")
+    JSON.parse(a)
+    
+
+  },
+  :processor => Proc.new { |search_results,findstr|
+
+      
+
+      suggestions = []
+
+      if !search_results["items"].nil?
+
+        suggestions_for_developer_paypal_com = search_results["items"].map { |l| { :q => findstr, 
+                                                        :mr => "JIRA",
+                                                        :knows => "<a href=\"#{l["link"]}\">" + l["htmlTitle"] + "<br>" + l["htmlSnippet"] + "</a>",
+                                                        :for => findstr,
+                                                        :ticket_number => "0",                
+                                                        :note_number => "0",
+                                                        :selection_counter => 0
+                                        
+        } }
+
+       puts "Suggestions for developer.paypal.com" + suggestions_for_developer_paypal_com.inspect
+       suggestions = suggestions + suggestions_for_developer_paypal_com[0..10]
+     end
+     suggestions
+
+  },
+  :how_many_results => 10,
+  :menu_items => []
+  
+        
+}

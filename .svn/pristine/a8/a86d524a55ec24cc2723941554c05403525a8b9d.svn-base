@@ -1,0 +1,15 @@
+{
+  :addon_name => "jira_ticket_web",
+  :type => "WEB",
+  :matching_lambda => Proc.new { /[A-Z]{3,}-[0-9]+/ },
+  :color => "#336699",
+  :childs => [],
+  :parent => ""
+
+
+
+
+
+
+
+}

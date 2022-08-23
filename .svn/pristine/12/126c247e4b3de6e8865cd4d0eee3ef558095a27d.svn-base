@@ -1,0 +1,173 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "#encoding: utf-8\nrequire 'rubygems'\nrequire 'sinatra'\nrequire 'sinatra/base'\nrequire 'sinatra/assetpack'\nrequire 'to_regexp'\nrequire 'set'\nrequire 'oj'\nrequire 'date'\nrequire 'levenshtein'\nrequire 'thin'\nrequire 'nokogiri'\n\n\n\n\nsession_store = {}\n\n\nclass Object\n  def to_json\n    Oj.dump(self)\n  end\n\n\nend\n\n\n\n\nEncoding.default_external = Encoding::UTF_8\n#class AdminTools < Sinatra::Base; end\n\napp = Sinatra.new\n\napp.set :public_folder, 'public'\napp.set :bind, '0.0.0.0'  \napp.set :port,9092\n#app.set :server, 'thin'\napp.enable :sessions\n\napp.set :show_exceptions => false\n\napp.error { |err|\n  Rack::Response.new(\n    [{'error' => err.message}.to_json],\n    500,\n    {'Content-type' => 'application/json'}\n  ).finish\n}\n\n# THIS IS AN ADDON ARCHITECTURE, NO DIRTY CLASSES AND COMPLICATED PATTERNS .. AS EASY AS THAT !\n# ONLY OBJECTS\n# THIS STUFF IS QUITE ABSTRACT AND IT WORKS\n\naddons = []\nDir.entries('addons').each do\n  |dir|\n  if (dir.include? \".rb\")\n    file_source_code = File.open(\"addons/\" + dir, \"rb\")\n    addon_source_code_as_string = file_source_code.read\n    addon = eval(addon_source_code_as_string)   \n    addons.push(addon)\n  end\nend\n\n\n\n\n\napp.before /[a-zA-Z][_]feed/ do\n\n  puts \"RUNNING BEFORE \"\n  \n\n  addons.each do |a|\n    if a[:type].include? \"FEED\"      \n\n      login_session_result = {}\n      \n      #puts \"OPENNED SESSIONS \" + session_store.to_json\n      while (session_store[(session[:username] + \"|||\" + a[:addon_name])].nil?)\n        begin\n          puts \"Trying to connect to \" + a[:addon_name].to_s\n          login_session_result = a[:login].call()\n          session_store[(session[:username] + \"|||\" + a[:addon_name])] = ({:name => a[:addon_name],:session => login_session_result})\n        rescue Exception => e  \n          puts \"Failed login for feed \" + a[:addon_name] + \" REASON: \" + e.message\n\n        \n        end     \n      end\n      puts \"LOGGED IN TO : \" + a[:addon_name].to_s\n    end    \n  end\nend\n\n\n\naddons.each do |a|\n  puts a.to_json\n  if (a[:type]==\"DYNAMIC_FEED\")\n    puts \"IS A DYNAMIC_FEED\"\n    app.get((\"/\" + a[:addon_name] + \"*\"),&a[:retriever])\n  end\n\n  puts \"helper_methods \" + a[:helper_methods_exposed_to_url].to_json\n  if (!a[:helper_methods_exposed_to_url].nil?)\n    a[:helper_methods_exposed_to_url].each do |method_object|\n      method_object.each_pair do |method_name,method_block|\n      puts \"METHOD_NAME_FROM_ADDON \" + method_name.to_s + \" METHOD_BLOCK \" + method_block.to_s\n        app.get \"/\" + method_name.to_s + \"*\", &method_block\n        app.post \"/\" + method_name.to_s + \"*\", &method_block\n      end\n    end\n  end\nend\n\n\n\n\n  app.get '/' do\n    session[:feed_sessions] = []\n    erb :login\n  end\n\n\n  allowed_people = [\"pborda@paypal.com\",\"amusumeci@paypal.com\",\"mlaskowski@paypal.com\",\"anegro@paypal.com\"]\n\n\n  app.post '/login*' do\n    puts \"MY SESSION HAS \" + session.to_json\n    session[:username] = params[:email]   \n    puts \"LOGIN WITH \" + params[:email].to_s\n    if (allowed_people.include? session[:username])\n      erb :search\n    else\n      \"DENIED\"\n    end\n  end\n\n\n\n\n  app.get '/suggest_me' do\n    begin\n      findstr = params[:q]\n      suggestions = []\n      feed_addons = addons.select {|a| a[:type].to_s.eql? \"DYNAMIC_FEED\"}\n      processed_suggestions = []\n      feed_addons.each do |a|\n\n        #byebug\n        session_feed =  session_store[(session[:username].to_s + \"|||\" + a[:addon_name].to_s)][:session]\n        #puts \"SESSION FROM SUGGEST_ME METHOD \" + session_feed.to_json\n\n        from_dynamic_feed_addon = a[:processor].call(a[:retriever].call(session_feed,params),findstr)\n\n        if (!from_dynamic_feed_addon.nil?)\n          processed_suggestions = processed_suggestions + from_dynamic_feed_addon\n        else\n          processed_suggestions\n        end\n      end\n       a = { \n         :query => params[:q].to_s,\n         :suggestions => processed_suggestions\n         #:suggestions => global_suggestions_filter(processed_suggestions,findstr)\n        }.to_json\n\n      a\n\n      rescue Exception => e\n        puts e.message\n        puts e.backtrace.inspect\n        return \"\"\n      end\n\n\n  end\n\n  def parse_function(ticket,level,sibling,addons)\n    markup = \"\"\n    if !ticket.nil?\n      ticket_html = Nokogiri::HTML(ticket)\n      ticket_html_text_nodes = ticket_html\n      \n      ticket_html_text_nodes.traverse do\n        |t|\n\n        if t.text?\n          puts \"PARSING NODE: \" + t.text.to_s\n          addons.each do |a|\n              if (a[:type]==\"WEB\")\n                k = a[:addon_name]\n                puts \"SEARCHING \" + k.to_s\n                v = a[:matching_lambda]\n                r = a[:render_lambda]\n                mo = a[:on_mouse_over_lambda]\n                hmetu = a[:menu_items]\n                childs = a[:childs]\n                parent = a[:parent]\n                color = a[:color]\n                 \n                v1 = v.call\n                t.content.gsub!(/#{v1}/) do |matched|\n                 if r.nil?\n                   r =  Proc.new { |addon,matched|\n\n                    menu_options = \"\"\n\n                    a[:menu_items].each { |e| \n                      menu_options = menu_options + \"<li class=\\\"last\\\"><a href='#'><span>\" + e.keys[0].to_s + \"</span></a></li>\"\n\n                    }\n\n                    sibling = 0\n                    if !childs.nil?\n                      childs.each { |e|\n                        menu_options = menu_options + parse_function(ticket,level+1,sibling,addons)\n                        sibling = sibling + 1\n\n                      }\n                    end\n\n\n                    building_menu = \"<link rel='stylesheet' type='text/css' href='/styles/menu.css?version=51'>\n                                     <div class='cssmenu' contenteditable='false'>\n                                       <ul>\n                                         <li class='has-sub'>\n                                           <a href='#'>\n                                             <span>\n                                               <label>\" + matched.to_s + \"</label>\n                                             </span>\n                                           </a>\n                                           <ul>\" + menu_options + \"</ul>\n                                         </li>\n\n                                       </ul>\n                                     </div>\"\n\n\n\n                    # building_menu = \"<nav id=\\\"radial-menu\" + level.to_s + \"\\\">\" +\n                    #                   \"<input type=\\\"button\\\" id=\\\"toggle-radial\" + level.to_s + \"\\\" value=\\\"\" + matched.to_s +  \"\\\" >\" +\n                    #                      \"<ul class=\\\"level-\" + (level.to_i + 1).to_s + \"\\\">\" +\n                    #                         menu_options +\n                    #                      \"</ul>\" +\n                    #                 \"</nav>\"\n                     puts \"MYMENU! \"  +  building_menu.to_s\n                     building_menu.to_s\n\n\n                   }\n                 end\n                 if mo.nil?\n                   mo = Proc.new { |addon|    \n                    \"\".to_s\n                   }\n                 end\n              \n                 parsed_value = (r.call(a,matched).to_s + mo.call(a).to_s)\n                 puts \"REPLACING: \" + matched + \" BY: \" + parsed_value\n                 markup = markup + parsed_value\n                end\n              end\n          end\n        end\n\n      end\n\n    end\n    puts \"FINAL MARKUP IS: \" + markup.to_s\n    markup\n  end\n\n\n\n\n\n\n\n\n  app.post '/parse*' do\n   begin\n    parse_function(params[:ticket],0,0,addons).to_s\n   rescue Exception => e\n     puts e.message\n   end\n\n\n  end\n\n\napp.get '/suggestion_item.ejs' do\n  File.read(File.join('views', 'suggestion_item.ejs'))\nend\n\n\napp.get '/new_editor.ejs' do\n  File.read(File.join('views', 'new_editor.ejs'))\nend\n\napp.get '/matched_item_menu.ejs' do\n  File.read(File.join('views','matched_item_menu.ejs'))\n\nend\n\n\napp.get '/tools' do\n  erb :tools\n\nend\n\n\napp.post '/static_feeds' do\n  begin\n    @static_feeds_notification_area = \"\"\n\n    addons.each do |a|\n      puts a.to_json\n      if (a[:type]==\"STATIC_FEED\")\n        puts \"IS A STATIC_FEED\"\n        addon_session = session_store[(session[:username].to_s + \"|||\" + a[:addon_name].to_s)][:session]\n        puts \"addon_session: \" + addon_session.inspect \n        addon_retrieved_data = a[:retriever].call(addon_session,params[:query])\n        puts \"i got search term: \" + params[:query]\n        puts \"addon_retrieved_data: \" + addon_retrieved_data.inspect\n        addon_processed_data = a[:processor].call(addon_retrieved_data, params[:query])\n        puts \"addon_processed_data: \" + addon_processed_data.inspect\n        #byebug\n  \n        addon_processed_data_renderized = addon_processed_data.inject(\"\") { |r,e| r = r + \"<li class=\\\"last\\\"><a href='#'><span>\" + e[:knows] + \"</span></a></li>\" }\n \n      \n\n\n\n        @static_feeds_notification_area = @static_feeds_notification_area + \"<li class='has-sub'><a href='#'><span><img  src=\\\"/images/\" + a[:addon_name] + \".png\\\" />\" + \n        \"</span></a><ul>\" + addon_processed_data_renderized + \"</ul></li>\"\n      end\n    end\n    @static_feeds_notification_area\n    erb :static_feeds\n\n  rescue\n    puts \"static_feeds failed, I dont care, next time will work\"\n\n  end\nend\n\n\napp.routes[\"GET\"].each do |route|\n  puts \"ROUTE GET: \" + route[0].to_s\nend\n\n\napp.routes[\"POST\"].each do |route|\n  puts \"ROUTE POST: \" + route[0].to_s\nend\n\n\n\napp.post '/learn*' do\n\n\n  sample_ticket = JSON.parse(\"{\n        \\\"RightNowTicket\\\": [\n            {\n                \\\"RefNum\\\": \\\"666666-666666\\\",\n                \\\"DateEntered\\\": \\\"66/66/6666 66:66 AM\\\",\n                \\\"AccountID\\\": \\\"\\\",\n                \\\"CID\\\": \\\"\\\",\n                \\\"Subject\\\": \\\"\\\",\n                \\\"EntryType\\\": \\\"2\\\",\n                \\\"Assigned\\\": \\\"\\\",\n                \\\"Status\\\": \\\"\\\",\n                \\\"SupportLevel\\\": \\\"\\\",\n                \\\"ContactEmail\\\": \\\"\\\",\n                \\\"Priority\\\": \\\"\\\",\n                \\\"TargetVersion\\\": \\\"\\\",\n                \\\"TargetDate\\\": \\\"\\\",\n                \\\"BugID\\\": \\\"\\\",\n                \\\"Severity\\\": \\\"\\\"\n            }\n        ],\n        \\\"Ack\\\": \\\"Success\\\",\n        \\\"CorrelationID\\\": \\\"\\\",\n        \\\"Errors\\\": null,\n        \\\"Version\\\": \\\"1\\\",\n        \\\"Build\\\": \\\"11\\\"\n    }\n\n\")\n\n\n\n  unless params[:learnfile] &&\n      (tmpfile = params[:learnfile][:tempfile]) &&\n      (name = params[:learnfile][:filename])\n    @error = \"No file selected\"\n    return haml(:upload)\n  end\n\n\n  pick_all_directly_from_file = tmpfile.read\n\n\n  chunks = pick_all_directly_from_file.gsub(\"\\t\",\"\").gsub(\"\\r\",\"\").split(\"\\n\")\n\n\n\n\n\n  chunks.each_slice(5) do |a,b,c,d,e|\n\n\n    sample_ticket['RightNowTicket'][0]['Note'] = [{:paragraph => a.to_s.gsub(\"\\n\",\"\").force_encoding(\"utf-8\")},{:paragraph => b.to_s.gsub(\"\\n\",\"\").force_encoding(\"utf-8\")},{:paragraph => c.to_s.gsub(\"\\n\",\"\").force_encoding(\"utf-8\")},{:paragraph => d.to_s.gsub(\"\\n\",\"\").force_encoding(\"utf-8\")},{:paragraph => e.to_s.gsub(\"\\n\",\"\").force_encoding(\"utf-8\")}]\n\n    # puts sample_ticket['RightNowTicket'][0]['Note'].to_json\n\n    Tire.index 'tickets-notes-converted-into-paragraphs' do\n\n      my_ticket = sample_ticket.clone\n\n      store (my_ticket)\n\n      refresh\n\n\n    end\n\n\n  end\n  \"OK FINISHED\"\nend\n\napp.run!\n",
+			"file": "admin.rb",
+			"file_size": 11215,
+			"file_write_time": 1434310171000000,
+			"settings":
+			{
+				"buffer_size": 11215,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/pborda/.config/sublime-text-2/Packages/User/Distraction Free.sublime-settings"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "admin.rb",
+					"settings":
+					{
+						"buffer_size": 11215,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3597,
+								3597
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Ruby/Ruby.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2694.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 88.0,
+	"status_bar_visible": true
+}
